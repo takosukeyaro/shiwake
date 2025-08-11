@@ -86,7 +86,7 @@ export const getJournalEntries = async () => {
     
     const { data, error } = await supabase
       .from('journal_tx')
-      .select('*')
+      .select('id, created_at, date, summary, debit_account, debit_amount, credit_account, credit_amount')
       .eq('user_id', user?.id)
       .order('date', { ascending: false });
 
