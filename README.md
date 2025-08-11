@@ -26,50 +26,6 @@
 2. 新しいプロジェクトを作成
 3. データベース画面でSQLエディタを開き、以下のテーブルを作成：
 
-\`\`\`sql
-```sql
--- 単式仕訳（借方1・貸方1）、等価CHECKは付けない
-create table if not exists public.journal_tx (
-  id              uuid primary key default gen_random_uuid(),
-  user_id         uuid not null,
-  date            date not null,
-  summary         text not null check (char_length(summary) <= 2000),
-
-  debit_account   text not null,
-  debit_amount    numeric(12,2) not null check (debit_amount  > 0),
-
-  credit_account  text not null,
-  credit_amount   numeric(12,2) not null check (credit_amount > 0),
-
-  created_at      timestamptz not null default now(),
-  updated_at      timestamptz not null default now()
-);
-
--- よく使う絞り込み
-create index if not exists idx_journal_tx_user_date
-  on public.journal_tx (user_id, date desc);
-
--- RLS（前回と同じ）
-alter table public.journal_tx enable row level security;
-
-create policy "tx_select_own"
-on public.journal_tx for select to authenticated
-using (user_id = auth.uid());
-
-create policy "tx_insert_own"
-on public.journal_tx for insert to authenticated
-with check (user_id = auth.uid());
-
-create policy "tx_update_own"
-on public.journal_tx for update to authenticated
-using (user_id = auth.uid());
-
-create policy "tx_delete_own"
-on public.journal_tx for delete to authenticated
-using (user_id = auth.uid());
-```
-\`\`\`
-
 ### 2. 環境変数の設定
 
 1. \`env.example\`をコピーして\`.env.local\`を作成
